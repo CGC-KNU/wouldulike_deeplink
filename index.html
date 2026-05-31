@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>우주라이크</title>
+</head>
+<body>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get("type");
+    const id = params.get("id");
+
+    let deeplink = "wouldulike://";
+    if (type === "restaurant" && id) {
+      deeplink = `wouldulike://restaurant/${id}`;
+    } else if (type === "tab" && id) {
+      deeplink = `wouldulike://tab/${id}`;
+    }
+
+    window.location.href = deeplink;
+
+    setTimeout(() => {
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isIOS) {
+        window.location.href =
+          "https://apps.apple.com/app/id6740640251";
+      } else {
+        window.location.href =
+          "https://play.google.com/store/apps/details?id=com.coggiri.new1";
+      }
+    }, 1500);
+  </script>
+  <p>앱을 여는 중...</p>
+</body>
+</html>
