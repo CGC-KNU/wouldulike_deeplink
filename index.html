@@ -7,7 +7,7 @@
 <body>
   <script>
     const params = new URLSearchParams(window.location.search);
-    const type = params.get("type");
+    const type = (params.get("type") || "").toLowerCase();
     const id = params.get("id");
 
     let deeplink = "wouldulike://";
@@ -15,6 +15,13 @@
       deeplink = `wouldulike://restaurant/${id}`;
     } else if (type === "tab" && id) {
       deeplink = `wouldulike://tab/${id}`;
+    } else if (type === "coupons" || type === "coupon") {
+      deeplink = "wouldulike://coupons";
+    } else if (type === "main") {
+      deeplink = "wouldulike://main";
+    } else if (type === "mileage") {
+      // 앱이 wouldulike://mileage 를 받게 되면 그때 스킴만 바꾸면 됨
+      deeplink = "wouldulike://coupons";
     }
 
     window.location.href = deeplink;
