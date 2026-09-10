@@ -11,8 +11,10 @@
     const id = params.get("id");
 
     let deeplink = "wouldulike://";
-    if (type === "restaurant" && id) {
-      deeplink = `wouldulike://restaurant/${id}`;
+    if (type === "restaurant" || type === "restaurants") {
+      deeplink = id ? `wouldulike://restaurant/${id}` : "wouldulike://restaurant";
+    } else if (type === "affiliate") {
+      deeplink = "wouldulike://restaurant";
     } else if (type === "tab" && id) {
       deeplink = `wouldulike://tab/${id}`;
     } else if (type === "coupons" || type === "coupon") {
