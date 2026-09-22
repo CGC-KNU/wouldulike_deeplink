@@ -24,6 +24,8 @@
     } else if (type === "mileage") {
       // 앱이 wouldulike://mileage 를 받게 되면 그때 스킴만 바꾸면 됨
       deeplink = "wouldulike://coupons";
+    } else if (type === "shop" || type === "mileage-shop" || type === "mileageshop") {
+      deeplink = "wouldulike://shop";
     }
 
     window.location.href = deeplink;
