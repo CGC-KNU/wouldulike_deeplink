@@ -1,46 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>우주라이크</title>
+  <style>
+    body { font-family: -apple-system, "Apple SD Gothic Neo", Pretendard, sans-serif; text-align: center; padding: 64px 24px; color: #191f28; }
+    a.btn { display: block; margin: 12px auto; max-width: 280px; padding: 14px; border-radius: 12px; background: #4f46e5; color: #fff; text-decoration: none; font-weight: 700; }
+    a.sub { background: #eef2ff; color: #4f46e5; }
+    p { color: #6b7684; }
+  </style>
 </head>
 <body>
+  <p id="msg">앱을 여는 중...</p>
+  <a id="open" class="btn" style="display:none">우주라이크 앱 열기</a>
+  <a id="store" class="btn sub" style="display:none">앱 설치하러 가기</a>
+  <script src="bridge.js"></script>
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const type = (params.get("type") || "").toLowerCase();
-    const id = params.get("id");
+    var plan = buildPlan(window.location.search, navigator.userAgent);
+    var openBtn = document.getElementById("open");
+    var storeBtn = document.getElementById("store");
+    var msg = document.getElementById("msg");
 
-    let deeplink = "wouldulike://";
-    if (type === "restaurant" || type === "restaurants") {
-      deeplink = id ? `wouldulike://restaurant/${id}` : "wouldulike://restaurant";
-    } else if (type === "affiliate") {
-      deeplink = "wouldulike://restaurant";
-    } else if (type === "tab" && id) {
-      deeplink = `wouldulike://tab/${id}`;
-    } else if (type === "coupons" || type === "coupon") {
-      deeplink = "wouldulike://coupons";
-    } else if (type === "main") {
-      deeplink = "wouldulike://main";
-    } else if (type === "mileage") {
-      // 앱이 wouldulike://mileage 를 받게 되면 그때 스킴만 바꾸면 됨
-      deeplink = "wouldulike://coupons";
-    } else if (type === "shop" || type === "mileage-shop" || type === "mileageshop") {
-      deeplink = "wouldulike://shop";
+    // 자동으로 안 열리는 환경(인앱 브라우저 등)을 위한 수동 버튼
+    openBtn.href = plan.androidIntent || plan.deeplink;
+    storeBtn.href = plan.storeUrl;
+    openBtn.style.display = storeBtn.style.display = "block";
+
+    if (plan.platform === "android") {
+      // intent:// 가 앱 열기와 "앱 없으면 Play 스토어"를 함께 처리한다.
+      window.location.href = plan.androidIntent;
+    } else if (plan.platform === "ios") {
+      var left = false;
+      function markLeft() { left = true; }
+      // 앱이 열리면 이 페이지는 가려지거나 포커스를 잃는다 → 그때는 스토어로 보내지 않는다.
+      document.addEventListener("visibilitychange", function () { if (document.hidden) markLeft(); });
+      window.addEventListener("pagehide", markLeft);
+      window.addEventListener("blur", markLeft);
+      window.location.href = plan.deeplink;
+      setTimeout(function () {
+        if (!left && !document.hidden) window.location.href = plan.storeUrl;
+      }, 1500);
+    } else {
+      msg.textContent = "휴대폰에서 QR을 다시 찍어 주세요.";
     }
-
-    window.location.href = deeplink;
-
-    setTimeout(() => {
-      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-      if (isIOS) {
-        window.location.href =
-          "https://apps.apple.com/app/id6740640251";
-      } else {
-        window.location.href =
-          "https://play.google.com/store/apps/details?id=com.coggiri.new1";
-      }
-    }, 1500);
   </script>
-  <p>앱을 여는 중...</p>
 </body>
 </html>
