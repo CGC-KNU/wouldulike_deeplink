@@ -54,6 +54,13 @@ test("기존 type 들이 그대로 매핑된다", () => {
   for (const [, [type, id, want]] of Object.entries(cases)) assert.strictEqual(resolvePath(type, id), want);
 });
 
+test("설문 링크는 설문 코드까지 앱으로 넘긴다", () => {
+  assert.strictEqual(buildPlan("?type=survey&id=benefit_pref", IOS).deeplink, "wouldulike://survey/benefit_pref");
+  assert.strictEqual(buildPlan("?type=survey", IOS).deeplink, "wouldulike://survey");
+  assert.strictEqual(buildPlan("?type=survey&id=benefit_pref&src=qr", IOS).deeplink, "wouldulike://survey/benefit_pref");
+  assert.ok(buildPlan("?type=survey&id=benefit_pref", ANDROID).androidIntent.startsWith("intent://survey/benefit_pref#Intent;"));
+});
+
 test("PC 는 이동하지 않는 플랫폼으로 구분", () => {
   assert.strictEqual(detectPlatform(DESKTOP), "other");
   assert.strictEqual(buildPlan("?type=restaurant&id=1", DESKTOP).androidIntent, undefined);
