@@ -8,3 +8,4 @@
 - 쿠폰함(한정쿠폰 배너): https://cgc-knu.github.io/wouldulike_deeplink/?type=coupons
 - 홈: https://cgc-knu.github.io/wouldulike_deeplink/?type=main
 - 마일리지 이벤트(임시, 지갑/쿠폰함으로 연결): https://cgc-knu.github.io/wouldulike_deeplink/?type=mileage
+- 앱 내 설문: https://cgc-knu.github.io/wouldulike_deeplink/?type=survey&id={설문 코드} (2.6.0 까지의 옛 앱은 설문을 몰라 첫 화면만 열린다)

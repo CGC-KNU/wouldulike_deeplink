@@ -20,6 +20,8 @@ function resolvePath(type, id) {
   if (type === "mileage") return "coupons";
   if (type === "shop" || type === "mileage-shop" || type === "mileageshop") return "shop";
   if (type === "profile" || type === "profilesetup") return "profile";
+  // 앱 내 설문: ?type=survey&id={설문 코드} → wouldulike://survey/{코드}. 코드가 없으면 지금 열린 설문.
+  if (type === "survey" || type === "surveys") return id ? "survey/" + id : "survey";
   return "";
 }
 
