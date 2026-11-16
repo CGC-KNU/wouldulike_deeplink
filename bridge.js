@@ -11,7 +11,7 @@ var APP_STORE_URL = "https://apps.apple.com/app/id6740640251";
 // 웹 스탬프(wouldulike_experience). 이 시각부터는 "앱이 없는 손님"을 스토어 대신 웹 스탬프로 보낸다.
 // 앱이 있으면 그대로 앱으로 가므로 앱의 QR 첫 방문 쿠폰·마일리지 흐름은 그대로다.
 var WEB_STAMP_BASE = "https://wouldulike-experience.vercel.app";
-var WEB_STAMP_START = new Date("2026-12-01T00:00:00+09:00");
+var WEB_STAMP_START = new Date("2026-11-16T00:00:00+09:00");
 
 // 화면(type) → wouldulike:// 뒤의 경로. 모르는 type 은 앱 첫 화면.
 function resolvePath(type, id) {

@@ -14,5 +14,5 @@
 
 - 주소: `?type=restaurant&id={식당ID}&src=sticker|poster|tent`
 - 앱이 있으면 앱의 해당 매장으로 연다 (앱의 QR 첫 방문 쿠폰·마일리지 흐름 그대로).
-- 앱이 없으면: **2026-12-01 00:00 KST 전**에는 스토어, **이후**에는 웹 스탬프(`https://wouldulike-experience.vercel.app/s/{id}?src=…`)로 보낸다. 웹에서 적립하고 앱 설치로 이어진다.
-- 이미 붙인 스티커도 같은 주소라 12/1에 자동으로 웹 스탬프로 바뀐다. 전환일·웹 주소는 `bridge.js` 맨 위 `WEB_STAMP_START`, `WEB_STAMP_BASE`.
+- 앱이 없으면: **2026-11-16 00:00 KST 전**에는 스토어, **이후**에는 웹 스탬프(`https://wouldulike-experience.vercel.app/s/{id}?src=…`)로 보낸다. 웹에서 적립하고 앱 설치로 이어진다.
+- 이미 붙인 스티커도 같은 주소라 전환일에 자동으로 웹 스탬프로 바뀐다. 전환일·웹 주소는 `bridge.js` 맨 위 `WEB_STAMP_START`, `WEB_STAMP_BASE`.

@@ -5,17 +5,19 @@ const { buildPlan, sanitizeSrc, sanitizeId, resolvePath, detectPlatform } = requ
 
 const IOS = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit";
 const ANDROID = "Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120";
+const BEFORE = new Date("2026-11-15T14:59:59Z"); // 11/15 23:59:59 KST
+const AFTER = new Date("2026-11-15T15:00:00Z"); // 11/16 00:00 KST
 const DESKTOP = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/120";
 
 test("매장 QR: src 가 앱 링크까지 전달된다 (iOS)", () => {
-  const p = buildPlan("?type=restaurant&id=317&src=qr", IOS);
+  const p = buildPlan("?type=restaurant&id=317&src=qr", IOS, BEFORE);
   assert.strictEqual(p.deeplink, "wouldulike://restaurant/317?src=qr");
   assert.strictEqual(p.platform, "ios");
   assert.match(p.storeUrl, /apps\.apple\.com/);
 });
 
 test("매장 QR: Android 는 앱 열기 + Play 스토어 대체를 intent 하나로", () => {
-  const p = buildPlan("?type=restaurant&id=317&src=sticker", ANDROID);
+  const p = buildPlan("?type=restaurant&id=317&src=sticker", ANDROID, BEFORE);
   assert.strictEqual(
     p.androidIntent,
     "intent://restaurant/317?src=sticker#Intent;scheme=wouldulike;package=com.coggiri.new1;" +
@@ -73,8 +75,6 @@ test("id 에 경로·쿼리 문자가 들어와도 앱 주소가 깨지지 않�
   assert.strictEqual(buildPlan("?type=restaurant&id=7%2F..%2Fx", IOS).deeplink, "wouldulike://restaurant");
 });
 
-const BEFORE = new Date("2026-11-30T14:59:59Z"); // 11/30 23:59:59 KST
-const AFTER = new Date("2026-11-30T15:00:00Z"); // 12/01 00:00 KST
 
 test("전환일 전: 앱이 없으면 예전처럼 스토어 (웹 주소 없음)", () => {
   const i = buildPlan("?type=restaurant&id=317&src=sticker", IOS, BEFORE);
