@@ -72,3 +72,31 @@ test("id 에 경로·쿼리 문자가 들어와도 앱 주소가 깨지지 않�
   assert.strictEqual(sanitizeId("7?a=1"), "");
   assert.strictEqual(buildPlan("?type=restaurant&id=7%2F..%2Fx", IOS).deeplink, "wouldulike://restaurant");
 });
+
+const BEFORE = new Date("2026-11-30T14:59:59Z"); // 11/30 23:59:59 KST
+const AFTER = new Date("2026-11-30T15:00:00Z"); // 12/01 00:00 KST
+
+test("전환일 전: 앱이 없으면 예전처럼 스토어 (웹 주소 없음)", () => {
+  const i = buildPlan("?type=restaurant&id=317&src=sticker", IOS, BEFORE);
+  assert.strictEqual(i.webUrl, undefined);
+  assert.strictEqual(i.fallbackUrl, i.storeUrl);
+  const a = buildPlan("?type=restaurant&id=317&src=sticker", ANDROID, BEFORE);
+  assert.match(a.androidIntent, new RegExp(encodeURIComponent("https://play.google.com/store/apps/details?id=com.coggiri.new1")));
+});
+
+test("전환일 후: 매장 QR 은 앱이 있으면 앱, 없으면 웹 스탬프", () => {
+  const i = buildPlan("?type=restaurant&id=317&src=sticker", IOS, AFTER);
+  assert.strictEqual(i.deeplink, "wouldulike://restaurant/317?src=sticker");
+  assert.strictEqual(i.webUrl, "https://wouldulike-experience.vercel.app/s/317?src=sticker");
+  assert.strictEqual(i.fallbackUrl, i.webUrl);
+  const a = buildPlan("?type=restaurant&id=317&src=sticker", ANDROID, AFTER);
+  assert.match(a.androidIntent, new RegExp("S\\.browser_fallback_url=" + encodeURIComponent(a.webUrl)));
+});
+
+test("전환일 후에도 src 없는 옛 QR 은 src 없이 웹으로, 매장 아닌 링크는 스토어", () => {
+  assert.strictEqual(buildPlan("?type=restaurant&id=56", IOS, AFTER).webUrl, "https://wouldulike-experience.vercel.app/s/56");
+  assert.strictEqual(buildPlan("?type=restaurant", IOS, AFTER).webUrl, undefined);
+  const c = buildPlan("?type=coupons", IOS, AFTER);
+  assert.strictEqual(c.webUrl, undefined);
+  assert.strictEqual(c.fallbackUrl, c.storeUrl);
+});

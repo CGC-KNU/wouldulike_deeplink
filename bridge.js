@@ -8,6 +8,11 @@ var ANDROID_PACKAGE = "com.coggiri.new1";
 var PLAY_URL = "https://play.google.com/store/apps/details?id=" + ANDROID_PACKAGE;
 var APP_STORE_URL = "https://apps.apple.com/app/id6740640251";
 
+// 웹 스탬프(wouldulike_experience). 이 시각부터는 "앱이 없는 손님"을 스토어 대신 웹 스탬프로 보낸다.
+// 앱이 있으면 그대로 앱으로 가므로 앱의 QR 첫 방문 쿠폰·마일리지 흐름은 그대로다.
+var WEB_STAMP_BASE = "https://wouldulike-experience.vercel.app";
+var WEB_STAMP_START = new Date("2026-12-01T00:00:00+09:00");
+
 // 화면(type) → wouldulike:// 뒤의 경로. 모르는 type 은 앱 첫 화면.
 function resolvePath(type, id) {
   type = (type || "").toLowerCase();
@@ -50,10 +55,10 @@ function detectPlatform(ua) {
 }
 
 // 플랫폼별 이동 계획.
-//  · android: intent:// 하나로 "앱 열기, 없으면 Play 스토어" 를 처리한다(타이머 불필요).
-//  · ios: 커스텀 스킴으로 열고, 화면이 그대로면 잠시 뒤 App Store.
+//  · android: intent:// 하나로 "앱 열기, 없으면 fallbackUrl(스토어, 전환일 이후 매장 QR 은 웹 스탬프)" 를 처리한다.
+//  · ios: 커스텀 스킴으로 열고, 화면이 그대로면 잠시 뒤 fallbackUrl.
 //  · other(PC 등): 이동하지 않고 안내만.
-function buildPlan(search, ua) {
+function buildPlan(search, ua, now) {
   var params = new URLSearchParams(search || "");
   var path = resolvePath(params.get("type"), sanitizeId(params.get("id")));
   var src = sanitizeSrc(params.get("src"));
@@ -61,12 +66,18 @@ function buildPlan(search, ua) {
   var deeplink = "wouldulike://" + path + query;
   var platform = detectPlatform(ua);
   var storeUrl = platform === "ios" ? APP_STORE_URL : PLAY_URL;
-  var plan = { platform: platform, deeplink: deeplink, storeUrl: storeUrl };
+  var plan = { platform: platform, deeplink: deeplink, storeUrl: storeUrl, fallbackUrl: storeUrl };
+  // 매장(id 있음) QR 이고 전환일 이후면, 앱이 없을 때 갈 곳을 웹 스탬프로 바꾼다.
+  var restaurantId = path.indexOf("restaurant/") === 0 ? path.slice("restaurant/".length) : "";
+  if (restaurantId && ((now || new Date()).getTime() >= WEB_STAMP_START.getTime())) {
+    plan.webUrl = WEB_STAMP_BASE + "/s/" + restaurantId + (src ? "?src=" + src : "");
+    plan.fallbackUrl = plan.webUrl;
+  }
   if (platform === "android") {
     plan.androidIntent =
       "intent://" + path + query +
       "#Intent;scheme=wouldulike;package=" + ANDROID_PACKAGE +
-      ";S.browser_fallback_url=" + encodeURIComponent(PLAY_URL) + ";end";
+      ";S.browser_fallback_url=" + encodeURIComponent(plan.fallbackUrl) + ";end";
   }
   return plan;
 }

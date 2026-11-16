@@ -15,6 +15,7 @@
   <p id="msg">앱을 여는 중...</p>
   <a id="open" class="btn" style="display:none">우주라이크 앱 열기</a>
   <a id="store" class="btn sub" style="display:none">앱 설치하러 가기</a>
+  <a id="web" class="btn sub" style="display:none">앱 없이 웹에서 스탬프 적립하기</a>
   <script src="bridge.js"></script>
   <script>
     var plan = buildPlan(window.location.search, navigator.userAgent);
@@ -26,6 +27,11 @@
     openBtn.href = plan.androidIntent || plan.deeplink;
     storeBtn.href = plan.storeUrl;
     openBtn.style.display = storeBtn.style.display = "block";
+    if (plan.webUrl) {
+      var webBtn = document.getElementById("web");
+      webBtn.href = plan.webUrl;
+      webBtn.style.display = "block";
+    }
 
     if (plan.platform === "android") {
       // intent:// 가 앱 열기와 "앱 없으면 Play 스토어"를 함께 처리한다.
@@ -39,7 +45,7 @@
       window.addEventListener("blur", markLeft);
       window.location.href = plan.deeplink;
       setTimeout(function () {
-        if (!left && !document.hidden) window.location.href = plan.storeUrl;
+        if (!left && !document.hidden) window.location.href = plan.fallbackUrl;
       }, 1500);
     } else {
       msg.textContent = "휴대폰에서 QR을 다시 찍어 주세요.";
