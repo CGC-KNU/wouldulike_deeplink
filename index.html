@@ -39,14 +39,19 @@
     } else if (plan.platform === "ios") {
       var left = false;
       function markLeft() { left = true; }
-      // 앱이 열리면 이 페이지는 가려지거나 포커스를 잃는다 → 그때는 스토어로 보내지 않는다.
+      // 앱이 열리면 이 페이지는 숨겨진다 → 그때는 스토어·웹으로 보내지 않는다.
+      // blur 는 쓰지 않는다: 앱이 없을 때 뜨는 Safari 경고창도 blur 를 일으켜 자동 이동이 막혔다.
       document.addEventListener("visibilitychange", function () { if (document.hidden) markLeft(); });
       window.addEventListener("pagehide", markLeft);
-      window.addEventListener("blur", markLeft);
-      window.location.href = plan.deeplink;
+      // 주소창에 바로 스킴을 넣으면 앱이 없을 때 "주소가 유효하지 않다"는 경고창이 뜬다.
+      // 숨은 iframe 으로 시도하면 앱이 있을 땐 열리고, 없을 땐 아무 일 없이 지나간다.
+      var probe = document.createElement("iframe");
+      probe.style.display = "none";
+      probe.src = plan.deeplink;
+      document.body.appendChild(probe);
       setTimeout(function () {
-        if (!left && !document.hidden) window.location.href = plan.fallbackUrl;
-      }, 1500);
+        if (!left && !document.hidden) window.location.replace(plan.fallbackUrl);
+      }, 1200);
     } else {
       msg.textContent = "휴대폰에서 QR을 다시 찍어 주세요.";
     }
